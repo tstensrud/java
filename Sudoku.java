@@ -1,30 +1,23 @@
 import javax.swing.*;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.*;
-import java.util.HashMap;
+import java.util.*;
 
-public class Sudoku extends JPanel {
+public class Sudoku {
 
 	public static int boardSize = 9;
 	public static String[][] solvedBoard = new String[boardSize][boardSize];
-	public static HashMap<String[][], String[][]> puzzles9x9 = new HashMap<>();
-	
-	@Override
-	public void paint(Graphics g) {
-		Graphics2D g2 = (Graphics2D) g;
-		g2.drawLine(500, 20, 500, 400);
-		g2.setColor(Color.black);
-		
-	}
+	public static ArrayList<Puzzle> puzzles = new ArrayList<>();
+	public static String[][] currentPuzzle = new String[boardSize][boardSize];
+	public static String[][] currentSolution = new String[boardSize][boardSize];
+	public static int boardNumber = 0;
 	
 	public static void main(String[] args) {
 	
 		drawUi();
-
+		
 	}
 	
 
@@ -53,16 +46,64 @@ public class Sudoku extends JPanel {
 			}
 		});
 		addPuzzle.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				System.out.println("Add");
+			public void actionPerformed(ActionEvent e) {		
+				
+				String[][] puzzle = {
+						{"","7","","","2","","","4","6"},
+						{"","6","","","","","8","9",""},
+						{"2","","","8","","","7","1","5"},
+						{"","8","4","","9","7","","",""},
+						{"7","1","","","","","","5","9"},
+						{"","","","1","3","","4","8",""},
+						{"6","9","7","","","2","","","8"},
+						{"","5","8","","","","","6",""},
+						{"4","3","","","8","","","7",""}};
+				
+				String[][] solution = {
+						{"8","7","5","9","2","1","3","4","6"},
+						{"3","6","1","7","5","4","8","9","2"},
+						{"2","4","9","8","6","3","7","1","5"},
+						{"5","8","4","6","9","7","1","2","3"},
+						{"7","1","3","2","4","8","6","5","9"},
+						{"9","2","6","1","3","5","4","8","7"},
+						{"6","9","7","4","1","2","5","3","8"},
+						{"1","5","8","3","7","9","2","6","4"},
+						{"4","3","2","5","8","6","9","7","1"}};
+				
+				String[][] puzzle2 = {
+						{"4","","6","5","","2","8","","9"},
+						{"","","","","4","","","3",""},
+						{"","","","","","","","","5"},
+						{"6","","","8","","","1","",""},
+						{"5","","","","7","","","8",""},
+						{"3","","2","9","","4","","6",""},
+						{"","2","","6","","","","","1"},
+						{"","","","","5","3","9","4",""},
+						{"8","3","","","9","","","","2"}};
+				
+				String[][] solution2 = {
+						{"4","7","6","5","3","2","8","1","9"},
+						{"2","5","8","1","4","9","7","3","6"},
+						{"1","9","3","7","6","8","4","2","5"},
+						{"6","4","7","8","2","5","1","9","3"},
+						{"5","1","9","3","7","6","2","8","4"},
+						{"3","8","2","9","1","4","5","6","7"},
+						{"9","2","4","6","8","7","3","5","1"},
+						{"7","6","1","2","5","3","9","4","8"},
+						{"8","3","5","4","9","1","6","7","2"}};
+				
+				
+				addPuzzle(puzzle, solution);
+				addPuzzle(puzzle2, solution2);
 			}
 		});
 		howItWorks.addActionListener(new ActionListener() {
+
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(mainFrame, "Check-button will check current input to a known solution.\n"
-						+ "Reset-button will rest entire board"
-						+ "New-button will select a brand new puzzle.\n" 
-						+ "Solve-button will solve puzzle for you if a solution exists\n");
+				JOptionPane.showMessageDialog(mainFrame, "Check: will check current input to a known solution.\n"
+						+ "Reset: will rest entire board.\n"
+						+ "New: will select a brand new puzzle.\n" 
+						+ "Solve: will solve puzzle for you if a solution exists\n");
 			}
 		});
 		
@@ -72,7 +113,7 @@ public class Sudoku extends JPanel {
 		int textFieldSize = 30;
 		
 		// size of main window
-		int frameWidth = 700;
+		int frameWidth = 800;
 		int frameHeight = 600;
 		
 		// get resolution to center window when app opens
@@ -87,6 +128,7 @@ public class Sudoku extends JPanel {
 			for (int j = 0; j < boardSize; j++) {
 				squares[i][j] = new JTextField();
 				squares[i][j].setBounds(horizontalDistance, verticalDistance, textFieldSize, textFieldSize);
+				squares[i][j].setFont(new Font("Arial", Font.BOLD, 18));
 				mainFrame.add(squares[i][j]);
 				horizontalDistance += 50;
 			}
@@ -96,44 +138,12 @@ public class Sudoku extends JPanel {
 		
 
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mainFrame.getContentPane().add(new Sudoku());
 		mainFrame.setSize(frameWidth,frameHeight);
 		mainFrame.setLayout(null);
 		mainFrame.setResizable(false);
 		mainFrame.setLocation((screenWidth / 2) - (frameWidth/2),(screenHeight / 2) - (frameHeight / 2));
 		mainFrame.setVisible(true);
 		
-		String[][] puzzleOne = {
-				{"","7","","","2","","","4","6"},
-				{"","6","","","","","8","9",""},
-				{"2","","","8","","","7","1","5"},
-				{"","8","4","","9","7","","",""},
-				{"7","1","","","","","","5","9"},
-				{"","","","1","3","","4","8",""},
-				{"6","9","7","","","2","","","8"},
-				{"","5","8","","","","","6",""},
-				{"4","3","","","8","","","7",""}};
-		
-		String[][] puzzleOneSolution = {
-				{"8","7","5","9","2","1","3","4","6"},
-				{"3","6","1","7","5","4","8","9","2"},
-				{"2","4","9","8","6","3","7","1","5"},
-				{"5","8","4","6","9","7","1","2","3"},
-				{"7","1","3","2","4","8","6","5","9"},
-				{"9","2","6","1","3","5","4","8","7"},
-				{"6","9","7","4","1","2","5","3","8"},
-				{"1","5","8","3","7","9","2","6","4"},
-				{"4","3","2","5","8","6","9","7","1"}};
-		
-		puzzles9x9.put(puzzleOne, puzzleOneSolution);
-		
-		for (int i = 0; i < boardSize; i++) {
-			for (int j = 0; j < boardSize; j++) {
-				if (puzzleOne[i][j].length() != 0) {
-				squares[i][j].setText(puzzleOne[i][j]);
-				}
-			}
-		}
 		
 		JButton buttonCheck = new JButton("Check");
 		buttonCheck.setBounds(530, 50, 80, 30);
@@ -147,7 +157,7 @@ public class Sudoku extends JPanel {
 					}
 				}
 				
-				boolean check = check(numbersCheck, puzzleOneSolution);
+				boolean check = check(numbersCheck, currentSolution);
 				if (check == false) {
 					JOptionPane.showMessageDialog(mainFrame, "Incorrect");
 				}
@@ -157,10 +167,27 @@ public class Sudoku extends JPanel {
 			}
 		});
 		
-		
 		JButton buttonReset = new JButton("Reset");
-		buttonReset.setBounds(530, 100, 80, 30);
+		buttonReset.setBounds(530,100,80,30);
 		buttonReset.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int confirm = JOptionPane.showConfirmDialog(mainFrame, "This will reset the entire board. Continue?", "Confirm",JOptionPane.YES_NO_OPTION);
+				if (confirm == JOptionPane.YES_OPTION) {
+					for (int i = 0; i < boardSize; i++) {
+						for (int j = 0; j < boardSize; j++) {
+							squares[i][j].setText(currentPuzzle[i][j]);
+						}
+					}
+				}
+				else if (confirm == JOptionPane.NO_OPTION) {
+					return;
+				}
+			}
+		});
+		
+		JButton buttonClear = new JButton("Clear");
+		buttonClear.setBounds(530, 150, 80, 30);
+		buttonClear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
 				int confirm = JOptionPane.showConfirmDialog(mainFrame, "This will clear the entire board. Continue?", "Confirm",JOptionPane.YES_NO_OPTION);
@@ -178,12 +205,26 @@ public class Sudoku extends JPanel {
 		});
 		
 		JButton buttonNew = new JButton("New");
-		buttonNew.setBounds(530, 150, 80, 30);
+		buttonNew.setBounds(530, 200, 80, 30);
 		buttonNew.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int confirm = JOptionPane.showConfirmDialog(mainFrame, "Move on to new puzzle?", "Confirm",JOptionPane.YES_NO_OPTION);
 				if (confirm == JOptionPane.YES_OPTION) {
-					//code for choosing new puzzle from database
+					Random random = new Random();
+					int boardSelected = random.nextInt(puzzles.size());
+					while (boardSelected == boardNumber) {
+						boardSelected = random.nextInt(puzzles.size());
+					}
+					
+					currentPuzzle = puzzles.get(boardSelected).puzzle;
+					currentSolution = puzzles.get(boardSelected).solution;
+					
+					for (int i = 0; i < boardSize; i++) {
+						for (int j = 0; j < boardSize; j++) {
+							squares[i][j].setText(currentPuzzle[i][j]);
+						}
+					}
+					boardNumber = boardSelected;
 				} else if (confirm == JOptionPane.NO_OPTION) {
 					return;
 				}
@@ -191,7 +232,7 @@ public class Sudoku extends JPanel {
 		});
 		
 		JButton buttonSolve = new JButton("Solve");
-		buttonSolve.setBounds(530, 200, 80, 30);
+		buttonSolve.setBounds(530, 250, 80, 30);
 		buttonSolve.addActionListener(new ActionListener () {
 			public void actionPerformed(ActionEvent e) {
 				String[][] getInput = new String[boardSize][boardSize];
@@ -217,8 +258,12 @@ public class Sudoku extends JPanel {
 		mainFrame.add(buttonNew);
 		mainFrame.add(buttonCheck);
 		mainFrame.add(buttonReset);
+		mainFrame.add(buttonClear);
 		mainFrame.add(buttonSolve);
 	}
+	
+
+	
 	// check  current input to known solution
 	public static boolean check(String[][] userInput, String[][] solution) {
 		for (int i = 0; i  < boardSize; i++) {
@@ -282,7 +327,7 @@ public class Sudoku extends JPanel {
 	
 	// add puzzle
 	public static void addPuzzle(String[][] puzzle, String[][] solution) {
-		puzzles9x9.put(puzzle, solution);
+		puzzles.add(new Puzzle(puzzle, solution));
 	}
 	
 	// solve puzzle
